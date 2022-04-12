@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+# fail fast
+set -ueo pipefail
+
+# debug
+# set -x
+
+# clean up leaking environment
+unset GIT_DIR
+
+source /dev/stdin <<< "$(curl -s --retry 3 https://lang-common.s3.amazonaws.com/buildpack-stdlib/v4/stdlib.sh)"
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+BUILDPACK_DIR="$(dirname $(dirname "$0"))"
+HEROKU_CLI_URL="https://cli-assets.heroku.com/heroku-linux-x64.tar.xz"
+
+puts_step "Fetching and vendoring Heroku CLI into slug"
+rm -rf "$BUILD_DIR/.heroku/cli"
+mkdir -p "$BUILD_DIR/.heroku/cli"
+mkdir -p "$BUILD_DIR/.heroku/bin"
+cd "$BUILD_DIR/.heroku/cli"
+
+if [[ -z "$(which curl)" ]]; then
+  wget -U "heroku-buildpack-cli-plugin-cron" -qO- $HEROKU_CLI_URL | tar xJ --strip-components 1
+else
+  curl -A "heroku-buildpack-cli-plugin-cron" -s --retry 3 $HEROKU_CLI_URL | tar xJ --strip-components 1
+fi
+ln -s "../cli/bin/heroku" "$BUILD_DIR/.heroku/bin/heroku"
+
+puts_step "Installing profile.d script"
+mkdir -p "$BUILD_DIR/.profile.d"
+cat <<EOF > "$BUILD_DIR/.profile.d/heroku-cli.sh"
+export PATH="\$PATH:\$HOME/.heroku/bin"
+export HEROKU_SKIP_ANALYTICS=1
+export HEROKU_DISABLE_AUTOUPDATE=1
+EOF
+chmod +x "$BUILD_DIR/.profile.d/heroku-cli.sh"
+
+"$BUILD_DIR/.heroku/bin/heroku" version
+puts_step "Heroku CLI installation done"
+
+"$BUILD_DIR/.heroku/bin/heroku" plugins:install heroku-cron
+
+"$BUILD_DIR/.heroku/bin/heroku" cron --help
+
+puts_step "Heroku CLI plugin for Cron To Go installation done"
