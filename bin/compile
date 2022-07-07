@@ -14,6 +14,7 @@ source /dev/stdin <<< "$(curl -s --retry 3 https://lang-common.s3.amazonaws.com/
 
 BUILD_DIR=$1
 CACHE_DIR=$2
+HOME=$1 # Required for retaining Heroku CLI plugins
 BUILDPACK_DIR="$(dirname $(dirname "$0"))"
 HEROKU_CLI_URL="https://cli-assets.heroku.com/heroku-linux-x64.tar.xz"
 
