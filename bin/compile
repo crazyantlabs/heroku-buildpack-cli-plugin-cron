@@ -14,7 +14,7 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 HOME=$1 # Required for retaining Heroku CLI plugins
 BUILDPACK_DIR="$(dirname $(dirname "$0"))"
-HEROKU_CLI_URL="https://cli-assets.heroku.com/heroku-linux-x64.tar.xz"
+HEROKU_CLI_URL="https://cli-assets.heroku.com/channels/stable/heroku-linux-x64.tar.xz"
 LIB_DIR="$BUILDPACK_DIR/lib"
 
 source $LIB_DIR/buildpack-stdlib-v7.sh
