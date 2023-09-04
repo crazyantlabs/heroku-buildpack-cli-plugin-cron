@@ -10,13 +10,15 @@ set -ueo pipefail
 # clean up leaking environment
 unset GIT_DIR
 
-source /dev/stdin <<< "$(curl -s --retry 3 https://lang-common.s3.amazonaws.com/buildpack-stdlib/v4/stdlib.sh)"
-
 BUILD_DIR=$1
 CACHE_DIR=$2
 HOME=$1 # Required for retaining Heroku CLI plugins
 BUILDPACK_DIR="$(dirname $(dirname "$0"))"
 HEROKU_CLI_URL="https://cli-assets.heroku.com/heroku-linux-x64.tar.xz"
+LIB_DIR="$BUILDPACK_DIR/lib"
+
+puts_step "Vendoring stdlib"
+source $LIB_DIR/buildpack-stdlib-v7.sh
 
 puts_step "Fetching and vendoring Heroku CLI into slug"
 rm -rf "$BUILD_DIR/.heroku/cli"
