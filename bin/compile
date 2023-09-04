@@ -17,7 +17,6 @@ BUILDPACK_DIR="$(dirname $(dirname "$0"))"
 HEROKU_CLI_URL="https://cli-assets.heroku.com/heroku-linux-x64.tar.xz"
 LIB_DIR="$BUILDPACK_DIR/lib"
 
-puts_step "Vendoring stdlib"
 source $LIB_DIR/buildpack-stdlib-v7.sh
 
 puts_step "Fetching and vendoring Heroku CLI into slug"
